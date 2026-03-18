@@ -11,6 +11,7 @@ One card is **presented** (fully visible at the top), while the remaining cards 
 - **Pull-down stretch** — pull down at the top to fan out the stacked cards with a rubber-band effect; releases with a smooth snap-back animation
 - **Scrollable stack** — scroll through the stack when cards overflow the screen
 - **Presented card callback** — get notified when the already-presented card is tapped
+- **Refresh support** — reset the stack to the first card after adding or removing items
 - **Configurable** — peek height, animation duration, stretch resistance, and more
 - **Standard RecyclerView** — works with any `RecyclerView.Adapter`
 
@@ -76,6 +77,22 @@ stackLayoutManager.onPresentedCardClicked = { position ->
 }
 ```
 
+### 4. Refresh after data changes
+
+When items are added or removed from the adapter, call `refresh()` to reset the stack back to the first card:
+
+```kotlin
+// After adding a new item
+adapter.addItem(newItem)
+stackLayoutManager.refresh(recyclerView)
+
+// After removing an item
+adapter.removeItem(position)
+stackLayoutManager.refresh(recyclerView)
+```
+
+This cancels any running animations, resets scroll position, and presents the 0th card.
+
 ## Configuration
 
 `StackConfig` controls the layout behavior:
@@ -98,6 +115,7 @@ stackLayoutManager.onPresentedCardClicked = { position ->
 | `presentedPosition: Int` | Index of the currently presented card (read-only) |
 | `presentCard(position, recyclerView)` | Present a card at the given position with animation |
 | `onPresentedCardClicked: ((Int) -> Unit)?` | Callback when the presented card is tapped again |
+| `refresh(recyclerView)` | Reset state and present the 0th card. Call after adding/removing items |
 
 ## Project Structure
 
@@ -107,10 +125,12 @@ stack-view/
 │   └── src/main/java/io/igrant/stackview/
 │       ├── StackLayoutManager.kt
 │       └── StackConfig.kt
-└── sample/             # Sample app
+└── sample/             # Sample app (movie collection demo)
     └── src/main/java/io/igrant/stackview/sample/
-        ├── MainActivity.kt
-        └── CardAdapter.kt
+        ├── MainActivity.kt         # Stack view with FAB to add movies
+        ├── CardAdapter.kt          # Adapter with dynamic add/remove
+        ├── MovieDetailActivity.kt  # Detail page with remove action
+        └── MoviePreferences.kt     # SharedPreferences persistence
 ```
 
 ## Requirements
